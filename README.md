@@ -41,6 +41,7 @@ Aufgeführt ist der im aktuellen Projekt umgesetzte Stand, nicht die fertige Lö
     1. **Applikationsserver und Webserver**: Über Spring Boot wird automatisch ein In-Memory-Tomcat-Applikationsserver (inkl. Webserver) gestartet.
     2. **Process Engine**: Darin eingebettet wird die Camunda Process Engine als Applikation ausgeführt und ist per REST von aussen zugreifbar. Sie umfasst nebst der BPMN Core Engine auch einen Job Executor für das Erledigen asynchroner Aufgaben (z.B. Timer).
     3. **Process Engine-Datenbank**: Da eine Process Engine eine State Machine ist, muss sie irgendwo den Status laufender als auch abgeschlossener Prozessinstanzen persistieren können. Dies geschieht über eine File-basierte H2-Datenbank.
+    4. **Umzugsplattform-Datenbank**: Gewisse Stammdaten (z.B. Liste aller Gemeinden) als auch ausgewählte Bewegungsdaten erfolgreich oder fehlgeschlagen abgeschlossener Prozessinstanzen sollen in einer Umzugsplattform-Datenbank gehalten werden. Der Einfachheit halber wird hierfür dieselbe Datenbank verwendet wie für die Process Engine.
     5. **Tasklist-Applikation**: Damit der Meldepflichtige seine Meldung erfassen kann, wird eine Client-Applikation benötigt, die im Browser ausgeführt werden kann. Hierfür wird die ebenfalls im Applikations- und Webserver Tomcat eingebettete Camunda Tasklist WebApp eingesetzt. In einer produktiven Lösung würde diese sicher separat deployed oder sogar durch eine spezifisch für den Kanton Bern entwickelte Tasklist-Applikation ersetzt, welche über REST mit der Process Engine kommuniziert. Immerhin wurde die Tasklist-Webapp (und die übrigen Webapps) angepasst (deutsche Übersetzung, Logo und Farben, Google Maps API und Stripe Checkout integriert) in einem eigenen WebJAR-Projekt. Details hierzu siehe https://github.com/zhaw-gpi/be-services-plattform
     6. **Cockpit-Applikation**: Damit der Systemadministrator bei technischen Problemen und der Prozessverantwortliche aus Gründen des Monitorings und Controllings die laufenden und vergangenen Prozessinstanzen verwalten kann, wird die ebenfalls im Applikations- und Webserver Tomcat eingebettete Camunda Cockpit Webapp genutzt. In einer produktiven Lösung würde diese vermutlich zwar genutzt, würde aber auch die Daten von anderen Process Engines (der Microservices) enthalten, damit alle Daten an einem Ort eingesehen werden können.
 2. **Hauptprozess 'Umzug melden'**:
@@ -58,9 +59,11 @@ Aufgeführt ist der im aktuellen Projekt umgesetzte Stand, nicht die fertige Lö
 5. **'Erfolgreichen Abschluss mitteilen'**:
     1. In diesem Teil des Hauptprozesses (und auch teilweise in den aufgerufenen Prozessen) erfolgt die automatisierte **Ein-Weg-Kommunikation mit dem Meldepflichtigen**.
     2. Wie diese aussehen wird, ist später noch zu definieren.
-6. **'Erfolgreichen Abschluss persistieren'**:
-    1. In diesem Teil des Hauptprozesses (und auch teilweise in den aufgerufenen Prozessen) wird die automatisierte **Persistierung von Personendaten und Prozessstatus in der Umzugsplattform-Datenbank** geschehen.
-    2. Wie diese aussehen wird, ist später noch zu definieren.
+6. **JavaDelegate 'xyz persistieren'**:
+    1. In diesem Teil des Hauptprozesses (und auch teilweise in den aufgerufenen Prozessen) erfolgt die automatisierte **Persistierung von Personendaten und Prozessstatus in der Umzugsplattform-Datenbank**.
+    2. Da die Datenbank für Demo-Zwecke vereinfacht dieselbe ist wie für die Process Engine...
+    3. ... und da das Persistieren über einfache Repositories und Entities mittels Java Persistence API (JPA) **sehr einfach** ist,
+    4. ... wird auf eine Auslagerung verzichtet, sondern die Persistierung geschieht stattdessen **über eine in der Umzugsplattform integrierte JavaDelegate-Klasse**, welche auf die Repositories zugreift.
 
 ### Personenregister und weitere Umsyteme
 Später im Semster von den Studierenden zu erstellen.
@@ -79,6 +82,10 @@ Aufgeführt ist der im aktuellen Projekt umgesetzte Stand, nicht die fertige Lö
 3. **Persistierungs-Komponenten**:
     1. JDBC-Komponente als Treiber
     2. H2-Datenbank-Unterstützung inklusive Console-Servlet über application.properties-Einstellung
+    3. Java Persistence API (JPA)
+    4. Package Repositories und Package entities für Municipality, Person, TransactionLog und Document
+    5. JavaDelegates GetDocumentsDelegate, GetFeesDelegate, GetMunicipalityListDelegate und PersistUserEntriesAndStatusDelegate
+    6. initialData....sql/xlsx in test/ressources, um die Datenbank initial mit sinnvollen Stammdaten zu füllen
 6. **Frontend-Komponenten**:
     1. Die bereits erwähnte Camunda Tasklist App, welche AngularJS, Bootstrap und das Camunda Forms SDK beinhaltet
     3. Ordner static/forms mit einer Embedded Forms-HTML-Datei, welche den HTML-Code für die Forms sowie JavaScript-Code enthalten

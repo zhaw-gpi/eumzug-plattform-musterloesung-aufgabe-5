@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_15djiii" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_15djiii" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
   <bpmn:collaboration id="Collaboration_06rojpi">
     <bpmn:participant id="PersonErfassenUndIdentifizierenParticipant" name="Person erfassen und identifizieren" processRef="PersonErfassenUndIdentifizieren" />
     <bpmn:participant id="KantonalesPersonenregisterParticipant" name="Kantonales Personenregister">
@@ -19,6 +19,9 @@
 Ein End-Listener ruft die JavaDelegate-Klasse 'GetMunicipalityListDelegate' auf mit folgender Aufgabe: Prozessvariable municipalityList mit allen Gemeinden in der Umzugsplattform-Datenbank erstellen
 
 Über ein JPA-Repository sollen alle Municipality-Objekte aus der Datenbank in ein List-Objekt eingelesen werden. Diese Objekte werden mittels Camunda Spin in ein JSON-Objekt serialisiert und der Prozessvariable municipalityList zugewiesen.</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:executionListener delegateExpression="#{getMunicipalityListAdapter}" event="end" />
+      </bpmn:extensionElements>
       <bpmn:outgoing>SequenceFlow_0endv5n</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="ExclusiveGateway_1kbj40j" name="Ergebnis der Identifikation?">
@@ -111,38 +114,6 @@ Und schliesslich soll die Frage gestellt werden, ob er die Personalien überarbe
       <bpmn:outgoing>KorrekturNichtGewuenscht</bpmn:outgoing>
       <bpmn:outgoing>KorrekturGewuenscht</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="IdentifikationsmerkmaleErfassen" name="Identifikationsmerkmale erfassen">
-      <bpmn:documentation>Für dieses und alle weiteren Formulare gilt: Es wird eine client-seitige Validierung erwartet, welche den Benutzer informiert, was er falsch gemacht hat (Ausnahme: maxlength und required können ohne Validierungsnachricht gelöst werden.)
-
-AHV-Nummer (optional)
-  eCH-0044:vn
-  Long
-  input number (7560000000001-7569999999999)
-Vornamen
-  eCH-0044:firstName
-  String
-  input text (max. 100 Zeichen, Pflicht)
-  Help-Box permanent: Geben Sie Ihre Vornamen ein, wie Sie auf Ihrem amtlichen Ausweis abgebildet sind.
-Nachname
-  eCH-0044:officialName
-  String
-  input text (max. 100 Zeichen, Pflicht)
-Geschlecht
-  eCH-0044:sex
-  String
-  select (1=männlich, 2=weiblich, 3=unbestimmt, Pflicht)
-Geburtsdatum
-  eCH-0044:dateOfBirth
-  Date
-  input text (ISO-DateTime-Format, Pflicht)
-  Auswahl des Datums über Bootstrap-Datepicker ermöglichen
-Wegzugsadresse Politische Gemeinde
-  eCH-0007:municipalityIdMoveOut
-  Integer
-  select (basierend auf municipalityList (siehe unten), wobei municipalityName angezeigt wird)</bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_1qa435t</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_09b5q9r</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:task id="PersonenidentifikatorGenerieren" name="Personenidentifikator generieren">
       <bpmn:documentation>Generiert eine neue lokale PersonenId
 
@@ -201,6 +172,38 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Wegen ne
       <bpmn:incoming>SequenceFlow_0xvndsx</bpmn:incoming>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_14fbx4x" errorRef="Error_0j8yidj" />
     </bpmn:endEvent>
+    <bpmn:userTask id="IdentifikationsmerkmaleErfassen" name="Identifikationsmerkmale erfassen" camunda:assignee="${meldePflichtiger}">
+      <bpmn:documentation>Für dieses und alle weiteren Formulare gilt: Es wird eine client-seitige Validierung erwartet, welche den Benutzer informiert, was er falsch gemacht hat (Ausnahme: maxlength und required können ohne Validierungsnachricht gelöst werden.)
+
+AHV-Nummer (optional)
+  eCH-0044:vn
+  Long
+  input number (7560000000001-7569999999999)
+Vornamen
+  eCH-0044:firstName
+  String
+  input text (max. 100 Zeichen, Pflicht)
+  Help-Box permanent: Geben Sie Ihre Vornamen ein, wie Sie auf Ihrem amtlichen Ausweis abgebildet sind.
+Nachname
+  eCH-0044:officialName
+  String
+  input text (max. 100 Zeichen, Pflicht)
+Geschlecht
+  eCH-0044:sex
+  String
+  select (1=männlich, 2=weiblich, 3=unbestimmt, Pflicht)
+Geburtsdatum
+  eCH-0044:dateOfBirth
+  Date
+  input text (ISO-DateTime-Format, Pflicht)
+  Auswahl des Datums über Bootstrap-Datepicker ermöglichen
+Wegzugsadresse Politische Gemeinde
+  eCH-0007:municipalityIdMoveOut
+  Integer
+  select (basierend auf municipalityList (siehe unten), wobei municipalityName angezeigt wird)</bpmn:documentation>
+      <bpmn:incoming>SequenceFlow_1qa435t</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_09b5q9r</bpmn:outgoing>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmn:error id="Error_0j8yidj" name="ErrorPersonErfassenUndIdentifizieren" errorCode="WegenNegativerPersonenIdentifikationAbgebrochen" />
   <bpmn:error id="Error_1kxh83b" name="ErrorPersonIdentifizieren" errorCode="NegativeReportErhalten" />
@@ -375,9 +378,6 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Wegen ne
       <bpmndi:BPMNShape id="Task_0pakvui_di" bpmnElement="AnSchalterVerwiesenWerden" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <dc:Bounds x="1368" y="379" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_1ltt5s1_di" bpmnElement="IdentifikationsmerkmaleErfassen" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
-        <dc:Bounds x="250" y="224" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_1yt1iif_di" bpmnElement="PersonenidentifikatorGenerieren" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
         <dc:Bounds x="394" y="224" width="100" height="80" />
       </bpmndi:BPMNShape>
@@ -409,6 +409,9 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Wegen ne
         <di:waypoint x="1618" y="419" />
         <di:waypoint x="1673" y="419" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="UserTask_1jcerap_di" bpmnElement="IdentifikationsmerkmaleErfassen" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
+        <dc:Bounds x="250" y="224" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
