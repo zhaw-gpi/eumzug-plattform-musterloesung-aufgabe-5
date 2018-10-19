@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
@@ -37,7 +36,7 @@ public class MunicipalityEntity implements Serializable {
     private String municipalityName;
     
     // Liste benötigter Dokumente inkl. Hochlad-Bedingungen
-    @OneToMany(targetEntity = MunicipalityDocumentRelationEntity.class, fetch = FetchType.EAGER)
+    @OneToMany
     @JoinColumn(name = "MUNICIPALITY_ID")
     private List<MunicipalityDocumentRelationEntity> municipalityDocumentRelationEntities;
     

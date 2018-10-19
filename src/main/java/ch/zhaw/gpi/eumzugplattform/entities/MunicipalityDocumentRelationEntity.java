@@ -4,7 +4,6 @@ import java.io.Serializable;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -44,7 +43,7 @@ public class MunicipalityDocumentRelationEntity implements Serializable {
     private Boolean strangerCondition;
     
     // Referenz auf ein Dokument (wird in Datenbank über Foreign Key implementiert)
-    @ManyToOne(targetEntity = DocumentEntity.class, fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "DOCUMENT_ID")
     private DocumentEntity documentEntity;
     
