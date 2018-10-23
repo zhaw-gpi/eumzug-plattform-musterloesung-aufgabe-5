@@ -3,6 +3,7 @@ package ch.zhaw.gpi.eumzugplattform.entities;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -36,7 +37,7 @@ public class MunicipalityEntity implements Serializable {
     private String municipalityName;
     
     // Liste benötigter Dokumente inkl. Hochlad-Bedingungen
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "MUNICIPALITY_ID")
     private List<MunicipalityDocumentRelationEntity> municipalityDocumentRelationEntities;
     

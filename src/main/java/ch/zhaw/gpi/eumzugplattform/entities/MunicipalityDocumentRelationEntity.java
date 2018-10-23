@@ -13,6 +13,8 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Enitity-Klasse für Kombination aus Gemeinde und einem Dokument
+ * 
+ * Da weitere Attribute vorhanden sind, kann nicht @ManyToMany genutzt werden
  *
  * @author scep
  */
