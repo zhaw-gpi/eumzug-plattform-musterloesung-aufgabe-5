@@ -28,6 +28,7 @@ public class EumzugPlattformApplication {
      * @param args
      */
     public static void main(String[] args) {
+        // Startet eine SpringBoot-Applikation
         SpringApplication.run(EumzugPlattformApplication.class, args);
     }
 }

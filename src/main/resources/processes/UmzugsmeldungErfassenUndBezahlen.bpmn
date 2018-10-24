@@ -18,13 +18,6 @@
       <bpmn:incoming>SequenceFlow_0371va1</bpmn:incoming>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_1c43f0q" errorRef="Error_0fmfamk" />
     </bpmn:endEvent>
-    <bpmn:task id="AbbruchWegenZeitueberschreitungPersistieren" name="Abbruch wegen Zeitüberschreitung persistieren">
-      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
-
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex), ebenfalls der Status (status).</bpmn:documentation>
-      <bpmn:incoming>PersonIdentifikationErfasst</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_0ilbuyn</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:startEvent id="UmzugsmeldungGestartet" name="Umzugsmeldung gestartet">
       <bpmn:documentation>Dieses Prozesstartereignis wird aufgerufen vom Prozess 'UmzugMelden' und ist nicht gedacht, um unabhängig davon (z.B. aus der Tasklist) aufgerufen zu werden.</bpmn:documentation>
       <bpmn:outgoing>SequenceFlow_0idpplo</bpmn:outgoing>
@@ -143,15 +136,6 @@ Theoretisch: Dem Prozess wird der BusinessKey, die BusinessCaseId und der Benutz
         <bpmn:outgoing>AngabenKorrigieren</bpmn:outgoing>
         <bpmn:outgoing>Abbrechen</bpmn:outgoing>
       </bpmn:exclusiveGateway>
-      <bpmn:task id="GebuehrenErmitteln" name="Gebühren ermitteln">
-        <bpmn:documentation>Prozessvariable mit relevanten Gebühren basierend auf Angaben in der Umzugsplattform-Datenbank erstellen
-
-Zunächst wird geprüft, ob es sich um Wegzug/Zuzug oder Umzug handelt. Je nachdem werden dann über ein JPA-Repository eine oder zwei Gemeinde-Objekte aus der Datenbank geladen.
-
-Für jedes Objekt wird die relevante Gebühr (Zuzug, Wegzug oder Umzug) ausgelesen und einer HashMap hinzugefügt inklusive Angabe, um welche Art von Gebühr es sich handelt (z.B. "Wegzugsgebühr"). Falls mindestens eine Gebühr anfällt, wird die HashMap der Prozessvariable feeMap zugewiesen, ansonsten wird dieser Variable der Wert null zugewiesen.</bpmn:documentation>
-        <bpmn:incoming>SequenceFlow_05prxas</bpmn:incoming>
-        <bpmn:outgoing>SequenceFlow_12mko98</bpmn:outgoing>
-      </bpmn:task>
       <bpmn:task id="AlleAngabenPruefen" name="Alle Angaben prüfen">
         <bpmn:documentation>Alle vom Meldepflichtigen gemachten Angaben werden dargestellt. Die Angaben werden in folgenden Panels gruppiert:
 
@@ -202,13 +186,31 @@ Zuunterst zwei Checkboxes:
       <bpmn:sequenceFlow id="Abbrechen" name="Abbrechen" sourceRef="WeiteresVorgehen" targetRef="GebuehrenNichtAkzeptiertPersistieren">
         <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${!feesAccepted}</bpmn:conditionExpression>
       </bpmn:sequenceFlow>
-      <bpmn:task id="GebuehrenNichtAkzeptiertPersistieren" name="Gebühren nicht akzeptiert persistieren">
-        <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
+      <bpmn:serviceTask id="GebuehrenNichtAkzeptiertPersistieren" name="Gebühren nicht akzeptiert persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+        <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
 
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen nicht akzeptierter Gebühren".</bpmn:documentation>
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). 
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen nicht akzeptierter Gebühren".
+</bpmn:documentation>
+        <bpmn:extensionElements>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="status">Fehlgeschlagen wegen nicht akzeptierter Gebühren</camunda:inputParameter>
+          </camunda:inputOutput>
+        </bpmn:extensionElements>
         <bpmn:incoming>Abbrechen</bpmn:incoming>
         <bpmn:outgoing>SequenceFlow_158arzl</bpmn:outgoing>
-      </bpmn:task>
+      </bpmn:serviceTask>
+      <bpmn:serviceTask id="GebuehrenErmitteln" name="Gebühren ermitteln" camunda:delegateExpression="#{getFeesAdapter}">
+        <bpmn:documentation>Prozessvariable mit relevanten Gebühren basierend auf Angaben in der Umzugsplattform-Datenbank erstellen
+
+Zunächst wird geprüft, ob es sich um Wegzug/Zuzug oder Umzug handelt. Je nachdem werden dann über ein JPA-Repository eine oder zwei Gemeinde-Objekte aus der Datenbank geladen.
+
+Für jedes Objekt wird die relevante Gebühr (Zuzug, Wegzug oder Umzug) ausgelesen und einer HashMap hinzugefügt inklusive Angabe, um welche Art von Gebühr es sich handelt (z.B. "Wegzugsgebühr"). Falls mindestens eine Gebühr anfällt, wird die HashMap der Prozessvariable feeMap zugewiesen, ansonsten wird dieser Variable der Wert null zugewiesen.
+
+Zudem wird die Prozessvariable feesTotal auf den Wert der Gebühren insgesamt gesetzt, also 0, falls keine Gebühren anfallen und ansonsten die Summe aller Gebühren.</bpmn:documentation>
+        <bpmn:incoming>SequenceFlow_05prxas</bpmn:incoming>
+        <bpmn:outgoing>SequenceFlow_12mko98</bpmn:outgoing>
+      </bpmn:serviceTask>
     </bpmn:subProcess>
     <bpmn:boundaryEvent id="AchtundvierzigStundenVerstrichen" name="48 h&#10;verstrichen" attachedToRef="UmzugsmeldungErfassen">
       <bpmn:documentation>Es soll vermieden werden, dass Prozessinstanzen ewig hängen bleiben, weil ein Meldepflichtiger zwar Formulare aufruft, aber eines dieser Formulare nie absendet, sondern z.B. den Browser vorher schliesst. Daher ein Timeout von 48 h (PT48H).
@@ -291,13 +293,6 @@ Je nach Antwortzeiten der Gemeinden werden Sie dann in den nächsten Stunden ode
       <bpmn:incoming>SequenceFlow_04m4p8a</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1y8ukhh</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="FehlgeschlageneZahlungPersistieren" name="Fehlgeschlagene Zahlung persistieren">
-      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
-
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex), ebenfalls der Status (status).</bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_0zi28s4</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1d7e8re</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:endEvent id="WegenFehlgeschlagenerZahlungAbgebrochen" name="Wegen fehlgeschlagener Zahlung abgebrochen">
       <bpmn:incoming>SequenceFlow_1d7e8re</bpmn:incoming>
       <bpmn:errorEventDefinition id="ErrorEventDefinition_16rtpxf" errorRef="Error_1ayoalr" />
@@ -308,15 +303,6 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
     <bpmn:task id="ErfolgreicheUmzugsmeldungErfasungMitteilen" name="Erfolgreiche Umzugsmeldung-Erfasung mitteilen">
       <bpmn:incoming>SequenceFlow_1rzxb59</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_12n4w31</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="ErfolgreicheUmzugsmeldungErfassungPersistieren" name="Erfolgreiche Umzugsmeldung-Erfassung persistieren">
-      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
-
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex).
-
-In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Erfolgreiche Erfassung der Umzugsmeldung".</bpmn:documentation>
-      <bpmn:incoming>SequenceFlow_12n4w31</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1bqdavl</bpmn:outgoing>
     </bpmn:task>
     <bpmn:sequenceFlow id="SequenceFlow_1bqdavl" sourceRef="ErfolgreicheUmzugsmeldungErfassungPersistieren" targetRef="UmzugsmeldungErfolgreichErfasst" />
     <bpmn:sequenceFlow id="SequenceFlow_12n4w31" sourceRef="ErfolgreicheUmzugsmeldungErfasungMitteilen" targetRef="ErfolgreicheUmzugsmeldungErfassungPersistieren" />
@@ -336,6 +322,50 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
       </bpmn:timerEventDefinition>
     </bpmn:boundaryEvent>
     <bpmn:sequenceFlow id="SequenceFlow_1hqrnqq" sourceRef="DreiMinutenVerstrichen" targetRef="ExclusiveGateway_1bikmje" />
+    <bpmn:serviceTask id="AbbruchWegenZeitueberschreitungPersistieren" name="Abbruch wegen Zeitüberschreitung persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
+
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex), ebenfalls der Status (status).
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Wegen Zeitüberschreitung abgebrochen".
+</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Wegen Zeitüberschreitung abgebrochen</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>PersonIdentifikationErfasst</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_0ilbuyn</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="FehlgeschlageneZahlungPersistieren" name="Fehlgeschlagene Zahlung persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
+
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex), ebenfalls der Status (status).
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Erfolgreiche Erfassung der Umzugsmeldung".
+</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Wegen fehlgeschlagener Zahlung abgebrochen</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_0zi28s4</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1d7e8re</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="ErfolgreicheUmzugsmeldungErfassungPersistieren" name="Erfolgreiche Umzugsmeldung-Erfassung persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
+
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex).
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Erfolgreiche Erfassung der Umzugsmeldung".</bpmn:documentation>
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Erfolgreiche Erfassung der Umzugsmeldung</camunda:inputParameter>
+        </camunda:inputOutput>
+      </bpmn:extensionElements>
+      <bpmn:incoming>SequenceFlow_12n4w31</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1bqdavl</bpmn:outgoing>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmn:error id="Error_0fmfamk" name="ErrorUmzugsmeldungErfassenUndBezahlen" errorCode="ZeitueberschreitungBenutzer" />
   <bpmn:error id="Error_1ak9z8o" name="ErrorZahlungFehlgeschlagen" />
@@ -488,14 +518,8 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
         <di:waypoint x="2016" y="224" />
         <di:waypoint x="2052" y="224" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Task_06ntu7m_di" bpmnElement="GebuehrenErmitteln" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <dc:Bounds x="565" y="194" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_19ebow6_di" bpmnElement="ErfolgreicheUmzugsmeldungErfasungMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
         <dc:Bounds x="1777" y="184" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_06txocl_di" bpmnElement="ErfolgreicheUmzugsmeldungErfassungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <dc:Bounds x="1916" y="184" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Task_1olfbrh_di" bpmnElement="AlleAngabenPruefen" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <dc:Bounds x="715" y="194" width="100" height="80" />
@@ -570,9 +594,6 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
         <di:waypoint x="237" y="496" />
         <di:waypoint x="265" y="496" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Task_0kwjou3_di" bpmnElement="AbbruchWegenZeitueberschreitungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <dc:Bounds x="389" y="456" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1pnhskc_di" bpmnElement="WegenNichtAkzeptierterGebuehrenAbgebrochenErrorEvent">
         <dc:Bounds x="1093" y="313" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -591,9 +612,6 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
           <dc:Bounds x="917" y="265" width="53" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Task_039nvjc_di" bpmnElement="GebuehrenNichtAkzeptiertPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <dc:Bounds x="953" y="291" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BoundaryEvent_0jq8oqq_di" bpmnElement="ZahlungFehlgeschlagen">
         <dc:Bounds x="1326" y="246" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -615,9 +633,6 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
         <di:waypoint x="1344" y="340" />
         <di:waypoint x="1390" y="340" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNShape id="Task_03aj9vi_di" bpmnElement="FehlgeschlageneZahlungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <dc:Bounds x="1390" y="300" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_1bikmje_di" bpmnElement="ExclusiveGateway_1bikmje" isMarkerVisible="true">
         <dc:Bounds x="1692" y="199" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -637,6 +652,21 @@ Der Prozess soll allerdings anschliessend ganz normal weiter gehen, wie wenn er 
         <di:waypoint x="1717" y="312" />
         <di:waypoint x="1717" y="249" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="ServiceTask_1czqr3v_di" bpmnElement="AbbruchWegenZeitueberschreitungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <dc:Bounds x="389" y="456" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1qeguqm_di" bpmnElement="GebuehrenNichtAkzeptiertPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <dc:Bounds x="953" y="291" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1t27p98_di" bpmnElement="FehlgeschlageneZahlungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <dc:Bounds x="1390" y="300" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_0z8jot8_di" bpmnElement="ErfolgreicheUmzugsmeldungErfassungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <dc:Bounds x="1916" y="184" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_04bqahc_di" bpmnElement="GebuehrenErmitteln" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <dc:Bounds x="565" y="194" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

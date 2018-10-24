@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Named("getMunicipalityListAdapter")
 public class GetMunicipalityListDelegate implements JavaDelegate {
 
+    // Verdrahtung der MunicipalityRepository-Bean
     @Autowired
     private MunicipalityRepository municipalityRepository;
 

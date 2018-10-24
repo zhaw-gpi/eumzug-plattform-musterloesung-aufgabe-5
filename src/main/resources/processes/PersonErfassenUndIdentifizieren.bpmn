@@ -154,7 +154,7 @@ Die Response ist ebenfalls vom Typ DeliveryType und enthält den Header sowie en
     <bpmn:sequenceFlow id="SequenceFlow_074g35d" sourceRef="ExclusiveGateway_0if2rac" targetRef="KorrekturbedarfMitteilen" />
     <bpmn:sequenceFlow id="SequenceFlow_1f10k1z" sourceRef="NegativeReportErhalten" targetRef="ExclusiveGateway_0if2rac" />
     <bpmn:serviceTask id="NegativePersonenidentifikationPersistieren" name="Negative Personen-identifikation persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
-      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
+      <bpmn:documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
 
 Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex).
 

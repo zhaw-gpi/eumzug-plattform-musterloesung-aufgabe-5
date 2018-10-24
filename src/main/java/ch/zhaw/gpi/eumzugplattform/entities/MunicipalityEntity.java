@@ -36,6 +36,24 @@ public class MunicipalityEntity implements Serializable {
     @Size(min = 1, max = 40)
     private String municipalityName;
     
+    // Umzugsgebühr
+    @Basic
+    @Min(value=0)
+    @Max(value=50)
+    private int feeMove;
+    
+    // Wegzugsgebühr
+    @Basic
+    @Min(value = 0)
+    @Max(value = 50)
+    private int feeMoveOut;
+
+    // Zuzugsgebühr
+    @Basic
+    @Min(value = 0)
+    @Max(value = 50)
+    private int feeMoveIn;
+    
     // Liste benötigter Dokumente inkl. Hochlad-Bedingungen
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "MUNICIPALITY_ID")
@@ -56,6 +74,30 @@ public class MunicipalityEntity implements Serializable {
 
     public void setMunicipalityName(String municipalityName) {
         this.municipalityName = municipalityName;
+    }    
+
+    public int getFeeMove() {
+        return feeMove;
+    }
+
+    public void setFeeMove(int feeMove) {
+        this.feeMove = feeMove;
+    }    
+
+    public int getFeeMoveOut() {
+        return this.feeMoveOut;
+    }
+
+    public void setFeeMoveOut(int feeMoveOut) {
+        this.feeMoveOut = feeMoveOut;
+    }
+
+    public int getFeeMoveIn() {
+        return this.feeMoveIn;
+    }
+
+    public void setFeeMoveIn(int feeMoveIn) {
+        this.feeMoveIn = feeMoveIn;
     }
     
     public List<MunicipalityDocumentRelationEntity> getMunicipalityDocumentRelationEntities() {
@@ -66,10 +108,12 @@ public class MunicipalityEntity implements Serializable {
         this.municipalityDocumentRelationEntities = municipalityDocumentRelationEntities;
     }
     
+    // Hinzufügen von einer neuen MunicipalityDocumentRelationEntity
     public void addMunicipalityDocumentRelationEntity(MunicipalityDocumentRelationEntity municipalityDocumentRelationEntity) {
         this.municipalityDocumentRelationEntities.add(municipalityDocumentRelationEntity);
     }
     
+    // Entfernen einer MunicipalityDocumentRelationEntity
     public void removeMunicipalityDocumentRelationEntity(MunicipalityDocumentRelationEntity municipalityDocumentRelationEntity) {
         this.municipalityDocumentRelationEntities.remove(municipalityDocumentRelationEntity);
     }

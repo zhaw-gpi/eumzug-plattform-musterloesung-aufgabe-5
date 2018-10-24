@@ -81,6 +81,9 @@ Wie genau eine Gemeinde mit der erhaltenen Meldung umgeht, ist je nach Gemeinde 
           <camunda:outputParameter name="feeMap">dummy</camunda:outputParameter>
           <camunda:outputParameter name="relativesExist">${true}</camunda:outputParameter>
           <camunda:outputParameter name="relocationAccepted">${true}</camunda:outputParameter>
+          <camunda:outputParameter name="localPersonId">RutMül_1980-01-01_2</camunda:outputParameter>
+          <camunda:outputParameter name="firstName">Ruth</camunda:outputParameter>
+          <camunda:outputParameter name="officialName">Müller</camunda:outputParameter>
         </camunda:inputOutput>
       </extensionElements>
       <incoming>SequenceFlow_0ypg6cw</incoming>
@@ -100,13 +103,6 @@ Wie genau eine Gemeinde mit der erhaltenen Meldung umgeht, ist je nach Gemeinde 
       <documentation>Dem Meldepflichtigen wird der aktuelle Status z.B. per E-Mail mitgeteilt.</documentation>
       <incoming>SequenceFlow_19zjyai</incoming>
       <outgoing>SequenceFlow_1x0qckx</outgoing>
-    </task>
-    <task id="ErfolgreichenAbschlussPersistieren" name="Erfolgreichen Abschluss persistieren">
-      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
-
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Erfolgreicher Abschluss des eUmzugsmeldung".</documentation>
-      <incoming>SequenceFlow_1x0qckx</incoming>
-      <outgoing>SequenceFlow_1hdylfx</outgoing>
     </task>
     <sequenceFlow id="SequenceFlow_1hdylfx" sourceRef="ErfolgreichenAbschlussPersistieren" targetRef="UmzugsmeldungErfolgreichAbgeschlossen" />
     <sequenceFlow id="SequenceFlow_1x0qckx" sourceRef="ErfolgreichenAbschlussMitteilen" targetRef="ErfolgreichenAbschlussPersistieren" />
@@ -131,13 +127,6 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
       <incoming>SequenceFlow_0apyl62</incoming>
       <outgoing>SequenceFlow_0g89g9f</outgoing>
     </task>
-    <task id="AblehnungPersistieren" name="Ablehnung persistieren">
-      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
-
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen Ablehnung einer Einwohnergemeinde".</documentation>
-      <incoming>SequenceFlow_0g89g9f</incoming>
-      <outgoing>SequenceFlow_0lj1zgr</outgoing>
-    </task>
     <endEvent id="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen" name="Umzugsmeldung wegen einem Abbruchgrund fehlgeschlagen">
       <incoming>SequenceFlow_1ujnhap</incoming>
     </endEvent>
@@ -158,13 +147,51 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
       <incoming>SequenceFlow_0mkrx02</incoming>
       <outgoing>SequenceFlow_0gj0vfg</outgoing>
     </task>
-    <task id="UeberschreitenDerAntwortfristPersistieren" name="Überschreiten der Antwortfrist persistieren">
-      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren.
+    <serviceTask id="ErfolgreichenAbschlussPersistieren" name="Erfolgreichen Abschluss persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
 
-Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen Zeitüberschreitung bei der Kommunikation mit den Einwohnerkontrollsystemen".</documentation>
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). 
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Erfolgreicher Abschluss des eUmzugsmeldung".
+</documentation>
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Erfolgreicher Abschluss des eUmzugsmeldung</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>SequenceFlow_1x0qckx</incoming>
+      <outgoing>SequenceFlow_1hdylfx</outgoing>
+    </serviceTask>
+    <serviceTask id="AblehnungPersistieren" name="Ablehnung persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
+
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). 
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen Ablehnung einer Einwohnergemeinde".
+</documentation>
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Fehlgeschlagen wegen Ablehnung einer Einwohnergemeinde</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
+      <incoming>SequenceFlow_0g89g9f</incoming>
+      <outgoing>SequenceFlow_0lj1zgr</outgoing>
+    </serviceTask>
+    <serviceTask id="UeberschreitenDerAntwortfristPersistieren" name="Überschreiten der Antwortfrist persistieren" camunda:delegateExpression="#{persistUserEntriesAndStatusAdapter}">
+      <documentation>Aufruf der JavaDelegate-implementierenden Klasse 'PersistUserEntriesAndStatusDelegate', um Personenidentifikations- und Status-Angaben zu persistieren. Erstere sollen nur gespeichert werden, wenn die entsprechende Person nicht bereits in der Datenbank existiert. Letztere sollen in der TransactionLog-Entität gespeichert werden.
+
+Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden (localPersonId, vn, firstName, officialName, dateOfBirth und sex). 
+
+In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgeschlagen wegen Zeitüberschreitung bei der Kommunikation mit den Einwohnerkontrollsystemen".
+</documentation>
+      <extensionElements>
+        <camunda:inputOutput>
+          <camunda:inputParameter name="status">Fehlgeschlagen wegen Zeitüberschreitung bei der Kommunikation mit den Einwohnerkontrollsystemen</camunda:inputParameter>
+        </camunda:inputOutput>
+      </extensionElements>
       <incoming>SequenceFlow_0gj0vfg</incoming>
       <outgoing>SequenceFlow_0yipatr</outgoing>
-    </task>
+    </serviceTask>
   </process>
   <error id="Error_12sd8hn" name="ErrorUmzugsmeldungErfassenUndBezahlen" />
   <error id="Error_04jbe5p" name="ErrorEksAblehnung" />
@@ -213,9 +240,6 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Task_154kxp2_di" bpmnElement="ErfolgreichenAbschlussMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
         <omgdc:Bounds x="774" y="24" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_1u93ygl_di" bpmnElement="ErfolgreichenAbschlussPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <omgdc:Bounds x="937" y="24" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1yofrs3_di" bpmnElement="SequenceFlow_1yofrs3">
         <omgdi:waypoint x="273" y="64" />
@@ -279,9 +303,6 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
       <bpmndi:BPMNShape id="Task_0b4mlfl_di" bpmnElement="AblehnungMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
         <omgdc:Bounds x="774" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_1b6xc4e_di" bpmnElement="AblehnungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <omgdc:Bounds x="937" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BoundaryEvent_06hf3m1_di" bpmnElement="DefinierteZeitVerstrichen">
         <omgdc:Bounds x="517" y="86" width="36" height="36" />
         <bpmndi:BPMNLabel>
@@ -310,7 +331,13 @@ Die Personenidentifikations-Angaben sind bereits als Prozessvariablen vorhanden 
       <bpmndi:BPMNShape id="Task_0zitv22_di" bpmnElement="UeberschreitenDerAntwortfristMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
         <omgdc:Bounds x="774" y="235" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_0nz4xeu_di" bpmnElement="UeberschreitenDerAntwortfristPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+      <bpmndi:BPMNShape id="ServiceTask_1cryoi4_di" bpmnElement="ErfolgreichenAbschlussPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="937" y="24" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1ihijg9_di" bpmnElement="AblehnungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="937" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1pnbciw_di" bpmnElement="UeberschreitenDerAntwortfristPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <omgdc:Bounds x="937" y="235" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
