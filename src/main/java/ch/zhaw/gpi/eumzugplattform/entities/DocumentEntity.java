@@ -1,7 +1,6 @@
 package ch.zhaw.gpi.eumzugplattform.entities;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -17,13 +16,11 @@ public class DocumentEntity implements Serializable {
 
     // Manuell gesetzte Id
     @Id
-    @Column(unique = true, nullable = false)
     private int documentId;
 
     // Bezeichnung des Dokuments
-    @Basic
     @NotNull
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String name;
     
     // GETTER UND SETTER

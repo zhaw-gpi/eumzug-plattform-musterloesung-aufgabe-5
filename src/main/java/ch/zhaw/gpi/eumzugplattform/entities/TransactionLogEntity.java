@@ -1,8 +1,7 @@
 package ch.zhaw.gpi.eumzugplattform.entities;
 
+import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,7 +18,7 @@ import javax.validation.constraints.Size;
  * @author scep
  */
 @Entity(name="TransactionLog")
-public class TransactionLogEntity {
+public class TransactionLogEntity implements Serializable {
 
     // Automatisch generierte Id
     @Id
@@ -27,15 +26,11 @@ public class TransactionLogEntity {
     private Long logId;
     
     // Zeitstempel
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
     private Date logTimeStamp;
     
     // Status-Eintrag
-    @Basic
-    @Column(nullable = false)
     @NotNull
     @Size(min = 1, max = 100)
     private String status;

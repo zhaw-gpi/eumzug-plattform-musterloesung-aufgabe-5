@@ -1,8 +1,7 @@
 package ch.zhaw.gpi.eumzugplattform.entities;
 
+import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Temporal;
@@ -18,7 +17,7 @@ import javax.validation.constraints.Size;
  * @author scep
  */
 @Entity(name="Person")
-public class PersonEntity {
+public class PersonEntity implements Serializable{
 
     // Manuell gesetzte Personenidentifikation
     @Id
@@ -26,36 +25,27 @@ public class PersonEntity {
     private String localPersonId;
 
     // AHV-Nummer
-    @Basic
     @Min(value = 7560000000001L)
     @Max(value = 7569999999999L)
     private Long vn;
     
     // Vorname
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Size(min = 1, max = 100)
     private String firstName;
 
     // Nachname
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Size(min = 1, max = 100)
     private String officialName;
     
     // Geschlecht (1=männlich, 2,= weiblich, 3=unbestimmt)
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Min(value = 1)
     @Max(value = 3)
     private int sex;
 
     // Geburtsdatum
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;

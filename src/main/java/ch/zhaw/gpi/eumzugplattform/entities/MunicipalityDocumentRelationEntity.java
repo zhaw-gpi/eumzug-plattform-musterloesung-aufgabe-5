@@ -1,8 +1,6 @@
 package ch.zhaw.gpi.eumzugplattform.entities;
 
 import java.io.Serializable;
-import javax.persistence.Basic;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,21 +25,15 @@ public class MunicipalityDocumentRelationEntity implements Serializable {
     private Long municipalityDocumentId;
 
     // Hochladen-Bedingung Zivilstand (nur wenn verheiratet)
-    @Basic
     @NotNull
-    @Column(nullable = false)
     private Boolean marriageCondition;
 
     // Hochladen-Bedingung Elternschaft (nur mit Kindern)
-    @Basic
     @NotNull
-    @Column(nullable = false)
     private Boolean childrenCondition;
 
     // Hochladen-Bedingung Ausländerstatus (nur wenn Ausländer)
-    @Basic
     @NotNull
-    @Column(nullable = false)
     private Boolean strangerCondition;
     
     // Referenz auf ein Dokument (wird in Datenbank über Foreign Key implementiert)

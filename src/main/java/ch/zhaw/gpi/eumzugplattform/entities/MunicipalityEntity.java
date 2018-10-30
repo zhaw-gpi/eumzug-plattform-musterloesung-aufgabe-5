@@ -2,9 +2,7 @@ package ch.zhaw.gpi.eumzugplattform.entities;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.Basic;
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -24,32 +22,26 @@ public class MunicipalityEntity implements Serializable {
 
     // Manuell gesetzte Id (BFS-Nummer)
     @Id
-    @Column(unique = true, nullable = false)
     @Min(value = 1)
     @Max(value = 9999)
     private int municipalityId;
     
     // Offizieller Name
-    @Column(nullable = false)
-    @Basic
     @NotNull
     @Size(min = 1, max = 40)
     private String municipalityName;
     
     // Umzugsgebühr
-    @Basic
     @Min(value=0)
     @Max(value=50)
     private int feeMove;
     
     // Wegzugsgebühr
-    @Basic
     @Min(value = 0)
     @Max(value = 50)
     private int feeMoveOut;
 
     // Zuzugsgebühr
-    @Basic
     @Min(value = 0)
     @Max(value = 50)
     private int feeMoveIn;
