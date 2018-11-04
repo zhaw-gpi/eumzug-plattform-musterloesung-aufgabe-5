@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project id="500692f2-2513-432e-aa3e-f5d4c8cb00ed" activeEnvironment="Default" name="Umzugsplattform_Tests" resourceRoot="" soapui-version="5.4.0-EB" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config"><con:description>Dieses Projekt kann einerseits dazu verwendet werden, um die auf Camunda basierende Umzugs-Platform über die REST API zu steuern:
+- Anzeigen und Löschen von Deployments und Prozessinstanzen
+- Anzeigen von Prozessvariablen einer Prozessinstanz
+- Neue Prozessinstanzen vom Start oder mittendrin im Prozess mit Testdaten initiieren
+
+Dieses Projekt kann anderseits dazu verwendet werden, um automatisiert zu testen, ob die Umzugsplattform sich bezüglich Sequenzfluss und Aufruf der Umsysteme entsprechend der Anforderungen verhält.
+Dazu stehen verschiedene TestSuites mit vorgegebenen Testdaten zur Verfügung. Die TestSuites werden ausführlicher beschrieben auf http://.....MOODLE Nicht automatisiert geprüft werden können die Benutzerformulare.
+
+Vorbedingungen: Personenregister, GWR und Umzugsplattform müssen auf localhost ausgeführt sein (PS: In der Realität würde man ein Maven-Plugin nutzen, damit die soapUI-Test im Build-Prozess durchgeführt würden.</con:description><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.actions.iface.tools.soapui.TestRunnerAction@values-local"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+  <con:entry key="Report Format(s)" value=""/>
+  <con:entry key="Host:Port" value=""/>
+  <con:entry key="Export JUnit Results" value="false"/>
+  <con:entry key="Export All" value="false"/>
+  <con:entry key="Save After" value="false"/>
+  <con:entry key="Add Settings" value="false"/>
+  <con:entry key="WSS Password Type" value=""/>
+  <con:entry key="TestSuite" value="&lt;all>"/>
+  <con:entry key="Endpoint" value=""/>
+  <con:entry key="Select Report Type" value=""/>
+  <con:entry key="System Properties" value=""/>
+  <con:entry key="Password" value=""/>
+  <con:entry key="Print Report" value="false"/>
+  <con:entry key="Open Report" value="false"/>
+  <con:entry key="Export JUnit Results with test properties" value="false"/>
+  <con:entry key="Global Properties" value=""/>
+  <con:entry key="Project Properties" value=""/>
+  <con:entry key="Project Password" value=""/>
+  <con:entry key="TestCase" value="&lt;all>"/>
+  <con:entry key="Username" value=""/>
+  <con:entry key="user-settings.xml Password" value=""/>
+  <con:entry key="TestRunner Path" value=""/>
+  <con:entry key="Environment" value="Default"/>
+  <con:entry key="Coverage Report" value="false"/>
+  <con:entry key="Enable UI" value="false"/>
+  <con:entry key="Root Folder" value=""/>
+  <con:entry key="Ignore Errors" value="false"/>
+  <con:entry key="Domain" value=""/>
+  <con:entry key="Tool Args" value=""/>
+  <con:entry key="Save Project" value="false"/>
+</xml-fragment>]]></con:setting></con:settings><con:interface xsi:type="con:RestService" id="f33326a0-1acd-4446-a440-d460beb4c8f5" wadlVersion="http://wadl.dev.java.net/2009/02" name="http://localhost:8081" type="rest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart=""/><con:endpoints><con:endpoint>http://localhost:8081</con:endpoint></con:endpoints><con:resource name="Rest" path="/rest" id="2835ee87-e729-4313-b231-c76c2007d940"><con:settings/><con:parameters/><con:resource name="process-definition" path="process-definition" id="9e2a8322-1d57-44a4-806f-5c5df16d56ab"><con:settings/><con:parameters/><con:resource name="Umzug melden" path="key/UmzugMelden/start" id="58ee62fe-0e1f-4147-bcca-6dd526278c7d"><con:settings/><con:parameters/><con:method name="FromStart" id="1ca86041-7534-4677-91c5-626d2630e329" method="POST"><con:settings/><con:parameters/><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:representation type="RESPONSE"><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/><con:element xmlns:star="http://localhost/rest/process-definition/key/RelocationReportingProcess/start">star:Response</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="FAULT"><con:mediaType>application/json;charset=UTF-8</con:mediaType><con:status>500 405</con:status><con:params/><con:element xmlns:star="http://localhost/rest/process-definition/key/RelocationReportingProcess/start">star:Fault</con:element></con:representation><con:representation type="FAULT"><con:mediaType>application/json</con:mediaType><con:status>400 500 404</con:status><con:params/><con:element xmlns:star="http://localhost/rest/process-definition/key/RelocationReportingProcess/start">star:Fault</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:representation type="RESPONSE"><con:mediaType xsi:nil="true"/><con:status>0</con:status><con:params/><con:element>data</con:element></con:representation><con:request name="Adresse existiert, Person exisitiert nicht" id="6012de8c-719b-481c-a599-8b3acdcff334" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8081</con:endpoint><con:request>{
+	"businessKey": "",
+	"variables": {
+		 "meldePflichtiger": {"value": "a", "type": "String"},
+		 "firstName": {"value": "Hansjakobli", "type": "String"}, 
+		"officialName": {"value": "Müller", "type": "String"},
+		"sex": {"value": "2", "type": "String"},
+		"dateOfBirth": {"value": "1980-01-01T00:00:00.000+0100", "type": "Date"},
+		"streetMoveOut": {"value":"Dorfstrasse", "type": "String"},
+		"houseNumberMoveOut": {"value":"13a" , "type": "String"},
+		"swissZipCodeMoveOut": {"value":"3270" , "type": "Integer"},
+		"townMoveOut": {"value": "Aarberg" , "type": "String"},
+		"municipalityIdMoveOut": {"value": "302", "type": "Integer"}
+	}
+}
+</con:request><con:originalUri>http://localhost/rest/process-definition/key/RelocationReportingProcess/start</con:originalUri><con:credentials><con:username xsi:nil="true"/><con:password xsi:nil="true"/><con:domain xsi:nil="true"/><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/><con:parameterOrder/></con:request><con:request name="TestdatenUmfassend" id="6012de8c-719b-481c-a599-8b3acdcff334" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8081</con:endpoint><con:request>{
+             "variables": {
+             			  "meldePflichtiger": {"value": "a", "type": "String"},
+                           "firstName": {"value": "Hans", "type": "String"}, 
+                           "officialName": {"value": "Meier", "type": "String"},
+                           "sex": {"value": "1", "type": "String"},
+                           "dateOfBirth": {"value": "1970-01-01T00:00:00.000+0100", "type": "Date"},
+                           "streetMoveOut": {"value":"Dorfstrasse", "type": "String"},
+                           "houseNumberMoveOut": {"value":"13a" , "type": "String"},
+                           "swissZipCodeMoveOut": {"value":"3127" , "type": "Integer"},
+                           "townMoveOut": {"value": "Lohnstorf" , "type": "String"},
+                           "municipalityIdMoveOut": {"value": "874", "type": "Integer"},
+                           "streetMoveIn": {"value": "Bahnhofstrasse", "type": "String"},
+                           "houseNumberMoveIn": {"value": "1", "type": "String"},
+                           "swissZipCodeMoveIn": {"value": "3073", "type": "Integer"},
+                           "townMoveIn": {"value": "Gümligen", "type": "String"},
+                           "municipalityIdMoveIn": {"value": "356", "type": "Integer"},
+                           "departureDate": {"value": "2017-01-01T00:00:00.000+0100", "type": "Date"},
+                           "arrivalDate": {"value": "2017-01-02T00:00:00.000+0100", "type": "Date"},
+                           "apartmentIdMoveIn": {"value":"237123456780","type":"String"},
+                           "phoneNumber": {"value": "0980987766", "type": "String"},
+                           "emailAddress": {"value": "hans.meier@privat.ch", "type": "String"},
+                           "housingSituationType": {"value": "2", "type": "String"},
+                           "nameHousingSituation": {"value": "BearRent", "type": "String"},
+                           "streetHousingSituation": {"value": "Am Bäreneck", "type": "String"},
+                           "swissZipCodeHousingSituation": {"value": "3006", "type": "String"},
+                           "townHousingSituation": {"value": "Bern", "type": "String"}
+             }
+}</con:request><con:originalUri>http://localhost/rest/process-definition/key/RelocationReportingProcess/start</con:originalUri><con:credentials><con:username xsi:nil="true"/><con:password xsi:nil="true"/><con:domain xsi:nil="true"/><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/><con:parameterOrder/></con:request></con:method></con:resource><con:resource name="Umzugsmeldung erfassen und bezahlen" path="key/UmzugsmeldungErfassenUndBezahlen/start" id="8d0770b9-5977-4bb9-a38c-af9ef64cd20a"><con:settings/><con:parameters/><con:method name="BeforeAbschlussBestaetigungAnzeigen" id="73785ab1-bdfd-4742-b28a-e383cba75026" method="POST"><con:settings/><con:parameters/><con:representation type="RESPONSE"><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/><con:element xmlns:star="http://localhost/rest/process-definition/key/UmzugsmeldungErfassenUndBezahlen/start">star:Response</con:element></con:representation><con:representation type="REQUEST"><con:mediaType>application/json</con:mediaType><con:params/></con:representation><con:request name="Hans Meier, Umzug" id="55c84a63-9ede-454f-8279-7a56450a50b1" mediaType="application/json" postQueryString="false"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8081</con:endpoint><con:request>{
+	"businessKey": "",
+	"variables": {
+		 "meldePflichtiger": {"value": "a", "type": "String"},
+		 "officialName": {"value": "Meier", "type": "String"},
+		"firstName": {"value": "Hans", "type": "String"},
+		"sex": {"value": "1", "type": "String"},
+		"dateOfBirth": {"value": "1970-01-01T00:00:00.000+0100", "type": "Date"},
+
+		"localPersonId":{"value":"HanMei_1970-01-01_1", "type":"String"},
+		
+          "streetMoveOut": {"value":"Dorfstrasse", "type": "String"},
+          "houseNumberMoveOut": {"value":"13" , "type": "String"},
+          "swissZipCodeMoveOut": {"value":"3270" , "type": "Integer"},
+          "townMoveOut": {"value": "Aarberg" , "type": "String"},
+		"municipalityIdMoveOut": {"value": "301", "type": "Integer"},
+          "municipalityNameMoveOut": {"value": "Aarberg" , "type": "String"},
+		
+		"streetMoveIn": {"value": "Bahnhofstrasse", "type": "String"},
+          "houseNumberMoveIn": {"value": "1", "type": "String"},
+          "swissZipCodeMoveIn": {"value": "3270", "type": "Integer"},
+          "townMoveIn": {"value": "Aarberg", "type": "String"},
+          "municipalityIdMoveIn": {"value": "301", "type": "Integer"},
+          "municipalityNameMoveIn": {"value": "Aarberg" , "type": "String"},
+           
+          "departureDate": {"value": "2017-01-01T00:00:00.000+0100", "type": "Date"},
+          "arrivalDate": {"value": "2017-01-02T00:00:00.000+0100", "type": "Date"},
+          
+          "apartmentIdMoveIn": {"value":"393123456780","type":"String"},
+          
+          "phoneNumber": {"value": "0980987766", "type": "String"},
+          "emailAddress": {"value": "scep@zhaw.ch", "type": "String"}
+	},
+	"startInstructions": [
+		{
+			"type": "startBeforeActivity",
+			"activityId": "AbschlussBestaetigungAnzeigen"
+		}
+	]
+}</con:request><con:originalUri>http://localhost/rest/process-definition/key/UmzugsmeldungErfassenUndBezahlen/start</con:originalUri><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource><con:method name="Get all process definitions" id="07b9ce4c-59b6-4713-8c73-1e056e521c3f" method="GET"><con:settings/><con:parameters/><con:representation type="RESPONSE"><con:mediaType>application/json</con:mediaType><con:status>200</con:status><con:params/><con:element>Response</con:element></con:representation><con:request name="Get all process definitions" id="4d77fe29-0a47-479a-af53-578b8a2d86ce" mediaType="application/json"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:endpoint>http://localhost:8081</con:endpoint><con:request/><con:originalUri>http://localhost/rest/process-definition</con:originalUri><con:credentials><con:username xsi:nil="true"/><con:password xsi:nil="true"/><con:domain xsi:nil="true"/><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:parameters/></con:request></con:method></con:resource></con:resource></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/><con:oAuth1ProfileContainer/><con:sensitiveInformation/></con:soapui-project>
