@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0zo10zu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="1.16.2">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" id="Definitions_0zo10zu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="2.0.3">
   <bpmn:collaboration id="Collaboration_1tnimfb">
     <bpmn:participant id="DokumenteHochladenParticipant" name="Dokumente hochladen" processRef="DokumenteHochladen" />
   </bpmn:collaboration>
@@ -18,28 +18,6 @@
       <bpmn:outgoing>DokumenteVorhanden</bpmn:outgoing>
       <bpmn:outgoing>DokumenteNichtVorhanden</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="HochzuladendeDokumenteErmitteln" name="Hochzuladende Dokumente ermitteln">
-      <bpmn:documentation>Prozessvariable mit relevanten Dokumenten basierend auf Angaben in der Umzugsplattform-Datenbank erstellen
-
-Über ein Data Access Object sollen die Dokumente der relevanten MunicipalityEntity-Objekte aus der Datenbank in ein List Objekt eingelesen werden.
-
-Von dieser Liste wird für jeden Eintrag ein Objekt der Klasse MunicipalityDocumentUploadedFile erzeugt, welches einerseits den Eintrag erhält, aber auch zwei Eigenschaften fileDataUrl und fileName, welche dann im "Dokumente hochladen"-User Task mit Inhalt gefüllt wird.
-
-Damit keine Deserialisierungs-Probleme auftreten (Details siehe in JavaDoc der Klasse DocumentList), benötigt es ein Hilfsobjekt der Klasse DocumentList.
-
-Dieses Hilfsobjekt wird mittels Camunda Spin in ein JSON-Objekt serialisiert und der Prozessvariable documents zugewiesen. Der Prozessvariable documentsExist wird mit true/fals mitgegeben, ob Dokumente existieren.</bpmn:documentation>
-      <bpmn:incoming>WegzugZuzug</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1l3ujyh</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="DokumenteHochladenForm" name="Dokumente hochladen">
-      <bpmn:documentation>Info-Hinweis "Scannen Sie die für Sie zutreffenden Dokumente und laden Sie sie hoch."
-
-Für jedes Element in documents.municipalityDocumentUploadedFiles ein Input-Feld vom Typ file und ein Label, welches den Dokument-Namen (z.B. Heiratsurkunde) und die Bedingung (z.B. "falls verheiratet") enthält.
-
-Der eigentliche Upload geschieht in einer eigenen Funktion, wo der Dateiname als auch die Datei selbst (als DataUrl) in den Variablen fileName und fileDataUrl gespeichert werden.</bpmn:documentation>
-      <bpmn:incoming>DokumenteVorhanden</bpmn:incoming>
-      <bpmn:outgoing>SequenceFlow_1k753gz</bpmn:outgoing>
-    </bpmn:task>
     <bpmn:exclusiveGateway id="ExclusiveGateway_0bqz89f">
       <bpmn:incoming>Umzug</bpmn:incoming>
       <bpmn:incoming>DokumenteNichtVorhanden</bpmn:incoming>
@@ -67,6 +45,28 @@ Der eigentliche Upload geschieht in einer eigenen Funktion, wo der Dateiname als
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="SequenceFlow_09gv400" sourceRef="WeitereAngabenErfolgreichErfasst" targetRef="ExclusiveGateway_09tednt" />
     <bpmn:sequenceFlow id="SequenceFlow_1fsn8xu" sourceRef="ExclusiveGateway_0bqz89f" targetRef="EndEvent_1mtarjy" />
+    <bpmn:task id="DokumenteHochladenForm" name="Dokumente hochladen">
+      <bpmn:documentation>Info-Hinweis "Scannen Sie die für Sie zutreffenden Dokumente und laden Sie sie hoch."
+
+Für jedes Element in documents.municipalityDocumentUploadedFiles ein Input-Feld vom Typ file und ein Label, welches den Dokument-Namen (z.B. Heiratsurkunde) und die Bedingung (z.B. "falls verheiratet") enthält.
+
+Der eigentliche Upload geschieht in einer eigenen Funktion, wo der Dateiname als auch die Datei selbst (als DataUrl) in den Variablen fileName und fileDataUrl gespeichert werden.</bpmn:documentation>
+      <bpmn:incoming>DokumenteVorhanden</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1k753gz</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="HochzuladendeDokumenteErmitteln" name="Hochzuladende Dokumente ermitteln">
+      <bpmn:documentation>Prozessvariable mit relevanten Dokumenten basierend auf Angaben in der Umzugsplattform-Datenbank erstellen
+
+Über ein Data Access Object sollen die Dokumente der relevanten MunicipalityEntity-Objekte aus der Datenbank in ein List Objekt eingelesen werden.
+
+Von dieser Liste wird für jeden Eintrag ein Objekt der Klasse MunicipalityDocumentUploadedFile erzeugt, welches einerseits den Eintrag erhält, aber auch zwei Eigenschaften fileDataUrl und fileName, welche dann im "Dokumente hochladen"-User Task mit Inhalt gefüllt wird.
+
+Damit keine Deserialisierungs-Probleme auftreten (Details siehe in JavaDoc der Klasse DocumentList), benötigt es ein Hilfsobjekt der Klasse DocumentList.
+
+Dieses Hilfsobjekt wird mittels Camunda Spin in ein JSON-Objekt serialisiert und der Prozessvariable documents zugewiesen. Der Prozessvariable documentsExist wird mit true/fals mitgegeben, ob Dokumente existieren.</bpmn:documentation>
+      <bpmn:incoming>WegzugZuzug</bpmn:incoming>
+      <bpmn:outgoing>SequenceFlow_1l3ujyh</bpmn:outgoing>
+    </bpmn:task>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1tnimfb">
@@ -144,12 +144,6 @@ Der eigentliche Upload geschieht in einer eigenen Funktion, wo der Dateiname als
           <dc:Bounds x="715" y="218" width="57" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_0bmw200_di" bpmnElement="HochzuladendeDokumenteErmitteln" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
-        <dc:Bounds x="286" y="44" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_02b4i18_di" bpmnElement="DokumenteHochladenForm" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
-        <dc:Bounds x="565" y="44" width="100" height="80" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="ExclusiveGateway_0bqz89f_di" bpmnElement="ExclusiveGateway_0bqz89f" isMarkerVisible="true">
         <dc:Bounds x="449" y="168" width="50" height="50" />
       </bpmndi:BPMNShape>
@@ -157,6 +151,12 @@ Der eigentliche Upload geschieht in einer eigenen Funktion, wo der Dateiname als
         <di:waypoint x="499" y="193" />
         <di:waypoint x="725" y="193" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Task_0d58gmt_di" bpmnElement="DokumenteHochladenForm" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
+        <dc:Bounds x="565" y="44" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_128fyus_di" bpmnElement="HochzuladendeDokumenteErmitteln" bioc:stroke="#E53935" bioc:fill="#FFCDD2">
+        <dc:Bounds x="286" y="44" width="100" height="80" />
+      </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>
