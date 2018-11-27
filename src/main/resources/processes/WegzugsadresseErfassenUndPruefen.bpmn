@@ -83,12 +83,11 @@ Wenn das Formular zum zweiten (oder dritten) Mal aufgerufen wird und die Adresse
 
 Die Variable adresseUngueltigZaehler wird dabei im ausgehenden Sequenzfluss nach dem Adresse gültig-Gateway in einem Listener um 1 erhöht.
 
-Bitte korrigieren Sie entweder Ihre Eingaben im nächsten Formular oder melden Sie sich bei Ihrer Wegzugsgemeinde [Name der politischen Gemeinde] am Schalter, wenn Sie der Meinung sind, eigentlich die korrekte Adresse erfasst zu haben. In diesem Fall können Sie einfach diese Webseite schliessen, denn Ihre elektronische Umzugsmeldung wird automatisch nach 48 Stunden archiviert."
-</bpmn:documentation>
+Bitte korrigieren Sie entweder Ihre Eingaben im nächsten Formular oder melden Sie sich bei Ihrer Wegzugsgemeinde [Name der politischen Gemeinde] am Schalter, wenn Sie der Meinung sind, eigentlich die korrekte Adresse erfasst zu haben. In diesem Fall können Sie einfach diese Webseite schliessen, denn Ihre elektronische Umzugsmeldung wird automatisch nach 48 Stunden archiviert."</bpmn:documentation>
       <bpmn:incoming>SequenceFlow_0fooiee</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_1n0ru7f</bpmn:outgoing>
     </bpmn:task>
-    <bpmn:task id="WegzugsadressePruefen" name="Wegzugsadresse prüfen">
+    <bpmn:serviceTask id="WegzugsadressePruefen" name="Wegzugsadresse prüfen" camunda:delegateExpression="#{checkAdressMoveOutAdapter}">
       <bpmn:documentation>Wegzugsadress-Eingaben auf Übereinstimmung in Gebäude- und Wohnungsregister prüfen
 
 Die Operation adressPruefungOperation des Gebäude- und Wohnungsregister-Web Service (http://localhost:8090/soap/GebaeudeUndWohnungsRegisterService) wird synchron aufgerufen.
@@ -100,7 +99,7 @@ Für den Request an den Web Service müssen die Prozessvariablen houseNumberMove
 Die Response ist vom Typ AddresseExistenzType. Die darin enthaltene Eigenschaft EXISTS wird der Prozessvariable adressMoveOutExists übergeben.</bpmn:documentation>
       <bpmn:incoming>SequenceFlow_1n0ru7f</bpmn:incoming>
       <bpmn:outgoing>SequenceFlow_04ncg2b</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:serviceTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1o68a8d">
@@ -180,7 +179,7 @@ Die Response ist vom Typ AddresseExistenzType. Die darin enthaltene Eigenschaft 
       <bpmndi:BPMNShape id="Task_0cwbh3c_di" bpmnElement="WegzugsadresseErfassen" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <dc:Bounds x="272" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Task_1wp6ba1_di" bpmnElement="WegzugsadressePruefen" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+      <bpmndi:BPMNShape id="ServiceTask_1gnx926_di" bpmnElement="WegzugsadressePruefen" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <dc:Bounds x="432" y="212" width="100" height="80" />
       </bpmndi:BPMNShape>
     </bpmndi:BPMNPlane>

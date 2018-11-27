@@ -89,17 +89,15 @@ Skripte:
       <bpmn:task id="GrundversicherungPruefen" name="Grund-versicherung prüfen">
         <bpmn:documentation>Grundversicherungsprüfung pro umziehender Person im Auskunftsdienst des VeKa-Centers
 
-Die Methode checkBaseInsurance des RESTful Web Services VeKa-Center-Auskunftsdienst (http://localhost:8070/vekaapi/checkbaseinsurance) wird synchron aufgerufen.
+Aufgrund der Komplexität soll die eigentliche Prüfung in einem ausgelagerten Service stattfinden (CheckBaseInsuranceService), dessen Anforderungen gleich anschliessend beschrieben sind. In der Delegate-Klasse soll lediglich die aktuelle Person in der Multi-Instanz-Aktivität ermittelt werden und diese an den CheckBaseInsuranceService übergeben werden, um dort geprüft zu werden.
 
-Der Web Service wird konsumiert mit spring-web und jackson-databind (https://spring.io/guides/gs/consuming-rest/).
-
-Für den Request an den Web Service müssen aus person in der Prozessvariable die Eigenschaften baseInsuranceNumber, firstName, officialName und dateOfBirth in ein JSON-Body für den Request an die Methode checkBaseInsurance aufbereitet werden.
-
-In der Realität müsste man sich beim Service authentifizieren, was wir für den Prototypen weglassen.
-
-Die JSON-Response enthält ein VeKaResponse-Objekt mit zwei String-Variablen: checkBaseInsuranceResult, die positiv (Yes, Person ist grundversichert), negativ (No, Person ist nicht grundversichert) oder unklar (Unknown, die Prüfung konnte nicht durchgeführt werden. Einerseits sind nicht alle Versicherungen abfragbar (Bsp.: Helsana) oder die Versichertenkartennum-mer konnte nicht gefunden werden.) sein kann. checkBaseInsuranceResultDetails mit weiteren Erläuterungen.
-
-Diese Antwort wird in den gleich lautenden Eigenschaften des Person-Objekts übergeben.
+Im CheckBaseInsuranceService soll es eine Methode geben, welche folgende Anforderungen erfüllt:
+- Sie nimmt ein Person-Objekt entgegen
+- Sie ruft eine Methode getVeKaCard in einem ausgelagerten VeKaClientService auf und übergibt dieser die Grundversicherungskartennummer. Die  Methode getVeKaCard wiederum ruft über eine GET-Anfrage an die VeKa-REST-API die zugehörige card-Resource ab. Ist diese vorhanden wird sie an die CheckBaseInsuranceService-Methode zurück gegeben, ansonsten wird null zurück gegeben, respektive ein Fehler geworfen, wenn weder 404 noch 200 von der VeKa-API als Antwort kommen.
+- Falls zur Kartennummer keine Karte gefunden wurde, dann soll die checkBaseInsuranceResult-Eigenschaft der Person auf "Unknown" gesetzt werden und die checkBaseInsuranceResultDetails-Eigenschaft auf "Keine Karte zu dieser Nummer gefunden. Mögliche Gründe: (Un)bewusste Falscheingabe oder der Kartenaussteller ist nicht bei der VeKa registriert."
+- Falls die Karte abgelaufen ist, ist checkBaseInsuranceResult "No" und checkBaseInsuranceResultDetails "Karte abgelaufen".
+- Falls die Karte nicht zur übergebenen Person passt, also entweder Vorname, Geburtsdatum und/oder Nachname abweichend sind, ist checkBaseInsuranceResult "No" und checkBaseInsuranceResultDetails "Karte gültig, aber Personalien nicht passend (ABWEICHENDE_PERSONALIEN)", wobei ABWEICHENDE_PERSONALIEN eine kommagetrennte Liste der betroffenen Personalien enthält, also im Maximum "Geburtsdatum, Vorname, Nachname).
+- Falls die obigen Punkte nicht zutreffen, dann ist checkBaseInsuranceResult "Yes" und entsprechend sind auch keine checkBaseInsuranceResultDetails erforderlich.
 
 In einem End Listener wird die Variable checkBaseInsurance auf false gesetzt. Begründung siehe im Kommentar zum GrundversicherungPruefenStartEvent.</bpmn:documentation>
         <bpmn:incoming>PruefenJa</bpmn:incoming>
