@@ -61,19 +61,43 @@ Wie genau eine Gemeinde mit der erhaltenen Meldung umgeht, ist je nach Gemeinde 
       <incoming>SequenceFlow_1iopode</incoming>
       <outgoing>SequenceFlow_1ptg35o</outgoing>
     </task>
-    <endEvent id="UmzugsmeldungErfolgreichAbgeschlossen" name="Umzugsmeldung erfolgreich abgeschlossen">
-      <incoming>SequenceFlow_1hdylfx</incoming>
-    </endEvent>
-    <task id="ErfolgreichenAbschlussMitteilen" name="Erfolgreichen Abschluss mitteilen">
-      <documentation>Dem Meldepflichtigen wird der aktuelle Status z.B. per E-Mail mitgeteilt.</documentation>
-      <incoming>SequenceFlow_19zjyai</incoming>
-      <outgoing>SequenceFlow_1x0qckx</outgoing>
-    </task>
     <exclusiveGateway id="ExclusiveGateway_11y17tq" name="Umzugsmeldung akzeptiert?">
       <incoming>SequenceFlow_1ptg35o</incoming>
       <outgoing>SequenceFlow_19zjyai</outgoing>
       <outgoing>SequenceFlow_0apyl62</outgoing>
     </exclusiveGateway>
+    <endEvent id="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen" name="Umzugsmeldung wegen einem Abbruchgrund fehlgeschlagen">
+      <incoming>SequenceFlow_1ujnhap</incoming>
+    </endEvent>
+    <boundaryEvent id="DefinierteZeitVerstrichen" name="Definierte Zeit verstrichen" attachedToRef="MitEKSystemenKommunizieren">
+      <outgoing>SequenceFlow_0mkrx02</outgoing>
+      <timerEventDefinition>
+        <timeDuration xsi:type="tFormalExpression">P60D</timeDuration>
+      </timerEventDefinition>
+    </boundaryEvent>
+    <boundaryEvent id="EinAbbruchgrundIstEingetroffen" name="Ein Abbruchgrund ist eingetroffen" attachedToRef="UmzugsmeldungErfassenUndBezahlen">
+      <documentation>Kommt es innerhalb des aufgerufenen Prozesses zu einem Fehler, so soll dieser innerhalb des aufgerufenen Prozesses behandelt werden, während der Hauptprozess lediglich darüber informiert wird, damit die Prozessinstanz entsprechend vorzeitig beendet werden kann.</documentation>
+      <outgoing>SequenceFlow_1ujnhap</outgoing>
+      <errorEventDefinition errorRef="Error_12sd8hn" />
+    </boundaryEvent>
+    <sequenceFlow id="SequenceFlow_1iopode" sourceRef="UmzugsmeldungErfassenUndBezahlen" targetRef="MitEKSystemenKommunizieren" />
+    <sequenceFlow id="SequenceFlow_1ptg35o" sourceRef="MitEKSystemenKommunizieren" targetRef="ExclusiveGateway_11y17tq" />
+    <sequenceFlow id="SequenceFlow_19zjyai" name="ja" sourceRef="ExclusiveGateway_11y17tq" targetRef="NeueAdresseVeKaCenterMitteilen">
+      <conditionExpression xsi:type="tFormalExpression">${relocationAccepted}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_0apyl62" name="nein" sourceRef="ExclusiveGateway_11y17tq" targetRef="AblehnungMitteilen">
+      <conditionExpression xsi:type="tFormalExpression">${!relocationAccepted}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="SequenceFlow_1ujnhap" sourceRef="EinAbbruchgrundIstEingetroffen" targetRef="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen" />
+    <sequenceFlow id="SequenceFlow_0mkrx02" sourceRef="DefinierteZeitVerstrichen" targetRef="UeberschreitenDerAntwortfristMitteilen" />
+    <endEvent id="UmzugsmeldungErfolgreichAbgeschlossen" name="Umzugsmeldung erfolgreich abgeschlossen">
+      <incoming>SequenceFlow_1hdylfx</incoming>
+    </endEvent>
+    <task id="ErfolgreichenAbschlussMitteilen" name="Erfolgreichen Abschluss mitteilen">
+      <documentation>Dem Meldepflichtigen wird der aktuelle Status z.B. per E-Mail mitgeteilt.</documentation>
+      <incoming>SequenceFlow_13lp8df</incoming>
+      <outgoing>SequenceFlow_1x0qckx</outgoing>
+    </task>
     <endEvent id="UmzugsmeldungWegenAblehnungFehlgeschlagen" name="Umzugsmeldung wegen Ablehnung fehlgeschlagen">
       <incoming>SequenceFlow_0lj1zgr</incoming>
     </endEvent>
@@ -82,9 +106,6 @@ Wie genau eine Gemeinde mit der erhaltenen Meldung umgeht, ist je nach Gemeinde 
       <incoming>SequenceFlow_0apyl62</incoming>
       <outgoing>SequenceFlow_0g89g9f</outgoing>
     </task>
-    <endEvent id="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen" name="Umzugsmeldung wegen einem Abbruchgrund fehlgeschlagen">
-      <incoming>SequenceFlow_1ujnhap</incoming>
-    </endEvent>
     <endEvent id="UmzugsmeldungWegenZeitueberschreitungFehlgeschlagen" name="Umzugsmeldung wegen Zeitüber-schreitung fehlgeschlagen">
       <incoming>SequenceFlow_0yipatr</incoming>
     </endEvent>
@@ -135,45 +156,40 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgesc
       <incoming>SequenceFlow_0gj0vfg</incoming>
       <outgoing>SequenceFlow_0yipatr</outgoing>
     </serviceTask>
-    <boundaryEvent id="DefinierteZeitVerstrichen" name="Definierte Zeit verstrichen" attachedToRef="MitEKSystemenKommunizieren">
-      <outgoing>SequenceFlow_0mkrx02</outgoing>
-      <timerEventDefinition>
-        <timeDuration xsi:type="tFormalExpression">P60D</timeDuration>
-      </timerEventDefinition>
-    </boundaryEvent>
-    <boundaryEvent id="EinAbbruchgrundIstEingetroffen" name="Ein Abbruchgrund ist eingetroffen" attachedToRef="UmzugsmeldungErfassenUndBezahlen">
-      <documentation>Kommt es innerhalb des aufgerufenen Prozesses zu einem Fehler, so soll dieser innerhalb des aufgerufenen Prozesses behandelt werden, während der Hauptprozess lediglich darüber informiert wird, damit die Prozessinstanz entsprechend vorzeitig beendet werden kann.</documentation>
-      <outgoing>SequenceFlow_1ujnhap</outgoing>
-      <errorEventDefinition errorRef="Error_12sd8hn" />
-    </boundaryEvent>
-    <sequenceFlow id="SequenceFlow_1iopode" sourceRef="UmzugsmeldungErfassenUndBezahlen" targetRef="MitEKSystemenKommunizieren" />
-    <sequenceFlow id="SequenceFlow_1ptg35o" sourceRef="MitEKSystemenKommunizieren" targetRef="ExclusiveGateway_11y17tq" />
     <sequenceFlow id="SequenceFlow_1hdylfx" sourceRef="ErfolgreichenAbschlussPersistieren" targetRef="UmzugsmeldungErfolgreichAbgeschlossen" />
-    <sequenceFlow id="SequenceFlow_19zjyai" name="ja" sourceRef="ExclusiveGateway_11y17tq" targetRef="ErfolgreichenAbschlussMitteilen">
-      <conditionExpression xsi:type="tFormalExpression">${relocationAccepted}</conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="SequenceFlow_1x0qckx" sourceRef="ErfolgreichenAbschlussMitteilen" targetRef="ErfolgreichenAbschlussPersistieren" />
-    <sequenceFlow id="SequenceFlow_0apyl62" name="nein" sourceRef="ExclusiveGateway_11y17tq" targetRef="AblehnungMitteilen">
-      <conditionExpression xsi:type="tFormalExpression">${!relocationAccepted}</conditionExpression>
-    </sequenceFlow>
     <sequenceFlow id="SequenceFlow_0lj1zgr" sourceRef="AblehnungPersistieren" targetRef="UmzugsmeldungWegenAblehnungFehlgeschlagen" />
     <sequenceFlow id="SequenceFlow_0g89g9f" sourceRef="AblehnungMitteilen" targetRef="AblehnungPersistieren" />
-    <sequenceFlow id="SequenceFlow_1ujnhap" sourceRef="EinAbbruchgrundIstEingetroffen" targetRef="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen" />
     <sequenceFlow id="SequenceFlow_0yipatr" sourceRef="UeberschreitenDerAntwortfristPersistieren" targetRef="UmzugsmeldungWegenZeitueberschreitungFehlgeschlagen" />
-    <sequenceFlow id="SequenceFlow_0mkrx02" sourceRef="DefinierteZeitVerstrichen" targetRef="UeberschreitenDerAntwortfristMitteilen" />
     <sequenceFlow id="SequenceFlow_0gj0vfg" sourceRef="UeberschreitenDerAntwortfristMitteilen" targetRef="UeberschreitenDerAntwortfristPersistieren" />
+    <task id="NeueAdresseVeKaCenterMitteilen" name="Neue Adresse VeKa-Center mitteilen">
+      <documentation>Mitteilen der Adressänderung für alle umziehenden Personen an das VeKa-Center
+
+Aufgrund der Komplexität soll die eigentliche Funktionalität in einem ausgelagerten Service stattfinden (UpdateAddressAtVekaService), dessen Anforderungen gleich anschliessend beschrieben sind. In der Delegate-Klasse soll lediglich die Personen-Liste und die Zuzugsadress-Angaben aus den Prozessvariablen gelesen werden und diese an den UpdateAddressAtVekaService übergeben werden.
+
+Im UpdateAddressAtVekaService soll es eine Methode geben, welche folgende Anforderungen erfüllt:
+- Sie nimmt ein PersonList-Objekt sowie Zuzugsadress-Angaben entgegen (streetMoveOut, houseNumber...).
+- Sie weist die Adressangaben einem Objekt vom Typ einer neu zu erstellenden Klasse zu, welches so serialisiert wird, wie dies von der VeKa-API erwartet wird.
+- Für jede grundversicherte (!) Person ruft sie eine Methode updateAddressForPerson in einem ausgelagerten VeKaClientService auf und übergibt dieser die erstellte Adresse zu und die Id der Person, wie diese im VeKa-Service vergeben wird (Achtung: Dies entspricht nicht der localPersonId =&gt; in processData.Person muss ein id-Attribut ergänzt werden, damit beim Aufruf von getVeKaCard die VeKa-Personen-Id deserialisiert wird.
+- Die  Methode updateAddressForPerson wiederum sendet über eine PUT-Anfrage an  /vekaapi/v1/persons/{id}/address die neue Adresse als RequestBody für eine bestimmte Personen-Id (id). Dabei wird keine Antwort der API-Methode ausgelesen. Tipp: Für PUT-Anfragen gibt es zig Varianten, aber da wir kein ResponseBody vom Server erwarten, ist die einfachste RestTemplate.put(url, RequestBody-Objekt, url Parameter).
+- Allgemein ist (im Unterschied zur Grundversicherungsprüfung) als prototypische Vereinfachung kein Fehlerhandling eingebaut, also in keiner der genannten Klassen/Methoden.
+</documentation>
+      <incoming>SequenceFlow_19zjyai</incoming>
+      <outgoing>SequenceFlow_13lp8df</outgoing>
+    </task>
+    <sequenceFlow id="SequenceFlow_13lp8df" sourceRef="NeueAdresseVeKaCenterMitteilen" targetRef="ErfolgreichenAbschlussMitteilen" />
   </process>
   <error id="Error_12sd8hn" name="ErrorUmzugsmeldungErfassenUndBezahlen" />
   <error id="Error_04jbe5p" name="ErrorEksAblehnung" />
   <bpmndi:BPMNDiagram id="BPMNDiagram_TwitterDemoProcess">
     <bpmndi:BPMNPlane id="BPMNPlane_TwitterDemoProcess" bpmnElement="Collaboration_05jmpr5">
       <bpmndi:BPMNShape id="Participant_1mdci1z_di" bpmnElement="UmzugMeldenParticipant">
-        <omgdc:Bounds x="-1" y="-1" width="1024" height="374" />
+        <omgdc:Bounds x="-1" y="-1" width="1187" height="374" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_15z9qe3_di" bpmnElement="UmzugsmeldungErfolgreichAbgeschlossen">
-        <omgdc:Bounds x="941" y="46" width="36" height="36" />
+        <omgdc:Bounds x="1104" y="46" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="918" y="89" width="83" height="40" />
+          <omgdc:Bounds x="1081" y="89" width="83" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1ptg35o_di" bpmnElement="SequenceFlow_1ptg35o">
@@ -181,8 +197,8 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgesc
         <omgdi:waypoint x="490" y="64" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_1hdylfx_di" bpmnElement="SequenceFlow_1hdylfx">
-        <omgdi:waypoint x="872" y="64" />
-        <omgdi:waypoint x="941" y="64" />
+        <omgdi:waypoint x="1035" y="64" />
+        <omgdi:waypoint x="1104" y="64" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="StartEvent_0ernray_di" bpmnElement="UmzugsmeldungGestartet">
         <omgdc:Bounds x="74" y="46" width="36" height="36" />
@@ -205,11 +221,11 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgesc
         <omgdc:Bounds x="174" y="24" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_1x0qckx_di" bpmnElement="SequenceFlow_1x0qckx">
-        <omgdi:waypoint x="709" y="64" />
-        <omgdi:waypoint x="772" y="64" />
+        <omgdi:waypoint x="872" y="64" />
+        <omgdi:waypoint x="935" y="64" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Task_154kxp2_di" bpmnElement="ErfolgreichenAbschlussMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
-        <omgdc:Bounds x="609" y="24" width="100" height="80" />
+        <omgdc:Bounds x="772" y="24" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_0bqsryr_di" bpmnElement="UmzugsmeldungWegenEinemAbbruchgrundFehlgeschlagen">
         <omgdc:Bounds x="247" y="152" width="36" height="36" />
@@ -236,35 +252,35 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgesc
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_19zjyai_di" bpmnElement="SequenceFlow_19zjyai">
         <omgdi:waypoint x="540" y="64" />
-        <omgdi:waypoint x="609" y="64" />
+        <omgdi:waypoint x="604" y="64" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="555" y="40" width="8" height="14" />
+          <omgdc:Bounds x="554" y="40" width="8" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0apyl62_di" bpmnElement="SequenceFlow_0apyl62">
         <omgdi:waypoint x="515" y="89" />
         <omgdi:waypoint x="515" y="170" />
-        <omgdi:waypoint x="609" y="170" />
+        <omgdi:waypoint x="772" y="170" />
         <bpmndi:BPMNLabel>
           <omgdc:Bounds x="524" y="105" width="21" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="EndEvent_10zavdc_di" bpmnElement="UmzugsmeldungWegenAblehnungFehlgeschlagen">
-        <omgdc:Bounds x="941" y="152" width="36" height="36" />
+        <omgdc:Bounds x="1104" y="152" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="915" y="195" width="88" height="40" />
+          <omgdc:Bounds x="1078" y="195" width="88" height="40" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0lj1zgr_di" bpmnElement="SequenceFlow_0lj1zgr">
-        <omgdi:waypoint x="872" y="170" />
-        <omgdi:waypoint x="941" y="170" />
+        <omgdi:waypoint x="1035" y="170" />
+        <omgdi:waypoint x="1104" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0g89g9f_di" bpmnElement="SequenceFlow_0g89g9f">
-        <omgdi:waypoint x="709" y="170" />
-        <omgdi:waypoint x="772" y="170" />
+        <omgdi:waypoint x="872" y="170" />
+        <omgdi:waypoint x="935" y="170" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Task_0b4mlfl_di" bpmnElement="AblehnungMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
-        <omgdc:Bounds x="609" y="130" width="100" height="80" />
+        <omgdc:Bounds x="772" y="130" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BoundaryEvent_06hf3m1_di" bpmnElement="DefinierteZeitVerstrichen">
         <omgdc:Bounds x="352" y="86" width="36" height="36" />
@@ -273,36 +289,43 @@ In einem Input-Parameter wird die Prozessvariable 'status' gesetzt mit "Fehlgesc
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_1q68da1_di" bpmnElement="UmzugsmeldungWegenZeitueberschreitungFehlgeschlagen">
-        <omgdc:Bounds x="941" y="257" width="36" height="36" />
+        <omgdc:Bounds x="1104" y="257" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <omgdc:Bounds x="918" y="300" width="83" height="53" />
+          <omgdc:Bounds x="1081" y="300" width="83" height="53" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="SequenceFlow_0gj0vfg_di" bpmnElement="SequenceFlow_0gj0vfg">
-        <omgdi:waypoint x="709" y="275" />
-        <omgdi:waypoint x="772" y="275" />
+        <omgdi:waypoint x="872" y="275" />
+        <omgdi:waypoint x="935" y="275" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0yipatr_di" bpmnElement="SequenceFlow_0yipatr">
-        <omgdi:waypoint x="872" y="275" />
-        <omgdi:waypoint x="941" y="275" />
+        <omgdi:waypoint x="1035" y="275" />
+        <omgdi:waypoint x="1104" y="275" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="SequenceFlow_0mkrx02_di" bpmnElement="SequenceFlow_0mkrx02">
         <omgdi:waypoint x="370" y="122" />
         <omgdi:waypoint x="370" y="275" />
-        <omgdi:waypoint x="609" y="275" />
+        <omgdi:waypoint x="772" y="275" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Task_0zitv22_di" bpmnElement="UeberschreitenDerAntwortfristMitteilen" bioc:stroke="#8E24AA" bioc:fill="#E1BEE7">
-        <omgdc:Bounds x="609" y="235" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1cryoi4_di" bpmnElement="ErfolgreichenAbschlussPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <omgdc:Bounds x="772" y="24" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1ihijg9_di" bpmnElement="AblehnungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
-        <omgdc:Bounds x="772" y="130" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="ServiceTask_1pnbciw_di" bpmnElement="UeberschreitenDerAntwortfristPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
         <omgdc:Bounds x="772" y="235" width="100" height="80" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1cryoi4_di" bpmnElement="ErfolgreichenAbschlussPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="935" y="24" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1ihijg9_di" bpmnElement="AblehnungPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="935" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ServiceTask_1pnbciw_di" bpmnElement="UeberschreitenDerAntwortfristPersistieren" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="935" y="235" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_07n9zrk_di" bpmnElement="NeueAdresseVeKaCenterMitteilen" bioc:stroke="#43A047" bioc:fill="#C8E6C9">
+        <omgdc:Bounds x="604" y="24" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_13lp8df_di" bpmnElement="SequenceFlow_13lp8df">
+        <omgdi:waypoint x="704" y="64" />
+        <omgdi:waypoint x="772" y="64" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </definitions>
